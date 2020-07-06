@@ -52,6 +52,11 @@ m.AddReaction("H_ec",{"PROTON_e":-1, "PROTON_c":1}, rev=False)
 m.AddReaction('K_rev_ec', {'KI_c':-1, 'KI_e':1}, rev = False)
 m.AddReaction('K_vc', {"KI_v":-1, "KI_c":1}, rev = False)
 
+# Add Cl metabolites
+m.AddMetabolite('CL_c', formula='Cl', name='CL', compartment='c1', charge=-1)
+m.AddMetabolite('CL_e', formula='Cl', name='CL', compartment='e1', charge=-1)
+m.AddMetabolite('CL_v', formula='Cl', name='CL', compartment='v1', charge=-1)
+
 # Add Cl reactions
 m.AddReaction('Cl_tx', {'CL_e' : 1}, rev = True)
 m.AddReaction('Cl_ec', {'PROTON_e':-2, 'CL_e':-1, 'PROTON_c':2, 'CL_c':1}, rev = False)
@@ -59,12 +64,15 @@ m.AddReaction('Cl_rev_ec', {'CL_c':-1, 'CL_e':1}, rev = False)
 m.AddReaction('Cl_vc', {'CL_v':-1, 'CL_c':1}, rev = False)
 m.AddReaction('Cl_rev_vc', {'CL_c':-2, 'PROTON_v':-1, 'CL_v':2, 'PROTON_c':1}, rev = False)
 
+# Add Malate metabolites
+m.AddMetabolite('MAL_e', formula='C4H4O5', name='MAL', compartment='e1', charge=-2)
+
 # Add Malate reactions
 m.AddReaction('MAL_tx', {'MAL_e' : 1}, rev = True)
 m.AddReaction('MAL_ec', {'PROTON_e':-3, 'MAL_e':-1, 'PROTON_c':3, 'MAL_c':1}, rev = False)
 m.AddReaction('MAL_rev_ec', {'MAL_c':-1, 'MAL_e':1}, rev = False)
 
-big_m = m.DuplicateModel({"_Open", "_Day", "_Close", "_Night"}) #suffixes is a dir of strings
+big_m = m.DuplicateModel(["_Open", "_Day", "_Close", "_Night"]) #suffixes is a dir of strings
 
 ##Storage Reactions
 #for K
@@ -103,6 +111,10 @@ big_m.AddReaction('H_DayClose_storage', {'PROTON_v_Day': -1, 'PROTON_v_Close': 1
 big_m.AddReaction('H_CloseNight_storage', {'PROTON_v_Close': -1, 'PROTON_v_Night': 1}, rev = False)
 big_m.AddReaction('H_NightOpen_storage', {'PROTON_v_Night': -1, 'PROTON_v_Open': 1}, rev = False)
 
+#for met in big_m.metabolites:
+#    met.compartment = str(met.id.rsplit('_', 2)[-2]) + '_' + str(met.id.rsplit('_', 2)[-1])
+
 ####How to write model####
 big_m.WriteModel("GC.xls")
-big_m.WriteModel("GC.json")
+big_m.WriteModel("GC.xml")
+#big_m.WriteModel("GC.json")

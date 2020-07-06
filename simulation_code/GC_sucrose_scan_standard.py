@@ -15,7 +15,7 @@ oc_k2malate = 0.8
 oc_sucrose = 1
 osmol = 0.9 
 
-m = scobra.Model("GC.json")
+m = scobra.Model("GC.xls")
 
 for reac in m.Reactions("_biomass"):
 	m.SetConstraint(reac, 0, 0)

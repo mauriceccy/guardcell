@@ -15,7 +15,7 @@ oc_k2malate = 0.8
 oc_sucrose = 1
 osmol = 0.9 
 
-m = scobra.Model("GC.json")
+m = scobra.Model("GC.xls")
 
 for reac in m.Reactions("_biomass"):
 	m.SetConstraint(reac, 0, 0)
@@ -104,5 +104,7 @@ m.PrintSol('Photon')
 m.PrintSol('CO2_tx')
 sol.AsMtx().ToFile('GC_standard.csv')
 
+m.SetBounds(1000) # to set a finite bound to bypass cobrapy unbounded problem
 fva = m.FVA()
-fva.AsMtx().to_csv('GC_standard_FVA.csv')
+df = fva.AsMtx().sort_index()
+df.to_csv('GC_standard_FVA.csv')

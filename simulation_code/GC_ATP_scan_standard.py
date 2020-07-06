@@ -71,43 +71,47 @@ m.SetConstraint("Sucrose_OpenDay_storage", 0, 0)
 #m.SetConstraint('Malate_CloseNight_storage', 0, 0)
 #m.SetConstraint('Malate_NightOpen_storage', 0, 0)
 
-lo = 0
-hi = 10
-tol = 1e-8
-diff = 1
-while diff > tol:
-    atp = (lo+hi)/2.0
-    m.SetConstraint("ATPase_tx_Open", atp*open_h, atp*open_h)
-    m.SetConstraint("ATPase_tx_Day", atp*day_h, atp*day_h)
-    m.SetConstraint("ATPase_tx_Close", atp*close_h, atp*close_h)
-    m.SetConstraint("ATPase_tx_Night", atp*night_h, atp*night_h)
-    nadph = 9.0
-    for phase in phases:
-	    if phase == '_Night':
-		    m.SetConstraint('NADPHoxc_tx' + phase, (atp*night_h/nadph), (atp*night_h/nadph))
-		    m.SetConstraint('NADPHoxp_tx' + phase, (atp*night_h/nadph), (atp*night_h/nadph))
-		    m.SetConstraint('NADPHoxm_tx' + phase, (atp*night_h/nadph), (atp*night_h/nadph))
-	    if phase == '_Open':
-		    m.SetConstraint('NADPHoxc_tx' + phase, (atp*open_h/nadph), (atp*open_h/nadph))
-		    m.SetConstraint('NADPHoxp_tx' + phase, (atp*open_h/nadph), (atp*open_h/nadph))
-		    m.SetConstraint('NADPHoxm_tx' + phase, (atp*open_h/nadph), (atp*open_h/nadph))
-	    if phase == '_Day':
-		    m.SetConstraint('NADPHoxc_tx' + phase, (atp*day_h/nadph), (atp*day_h/nadph))
-		    m.SetConstraint('NADPHoxp_tx' + phase, (atp*day_h/nadph), (atp*day_h/nadph))
-		    m.SetConstraint('NADPHoxm_tx' + phase, (atp*day_h/nadph), (atp*day_h/nadph))
-	    if phase == '_Close':
-		    m.SetConstraint('NADPHoxc_tx' + phase, (atp*close_h/nadph), (atp*close_h/nadph))
-		    m.SetConstraint('NADPHoxp_tx' + phase, (atp*close_h/nadph), (atp*close_h/nadph))
-		    m.SetConstraint('NADPHoxm_tx' + phase, (atp*close_h/nadph), (atp*close_h/nadph))
+sucrose = 0.72 # 80% of osmolyte from sucrose
+m.SetConstraint('Sucrose_tx_Day', sucrose, sucrose)
+#m.MinFluxSolve()
+#sol = m.GetSol(IncZeroes=True)
+#m.PrintSol('storage')
+#m.PrintSol('Photon')
+#m.PrintSol('CO2_tx')
+#sol.AsMtx().ToFile('GC_standard.csv')
 
-    sucrose = 0.72 # 80% of osmolyte from sucrose
-    m.SetConstraint('Sucrose_tx_Day', sucrose, sucrose)
-    m.MinFluxSolve()
-    sol = m.GetSol(IncZeroes=True)
-    co2 = sol['CO2_tx_Day']
-    diff = abs(co2 - 2.16) # 2.16 = 20% of 0.9 sucrose
-    if co2 < 2.16:
-        lo = atp
-    elif co2 > 2.16:
-        hi = atp
-    print(atp)
+#fva = m.FVA()
+#fva.AsMtx().to_csv('GC_standard_FVA.csv')
+import numpy
+ATPList = numpy.arange(0.0, 8.0, 0.1)
+mat = scobra.matrix()
+for n in ATPList:
+	atp = n # match carbon fixation = 20% of osmolyte accum
+	m.SetConstraint("ATPase_tx_Open", atp*open_h, atp*open_h)
+	m.SetConstraint("ATPase_tx_Day", atp*day_h, atp*day_h)
+	m.SetConstraint("ATPase_tx_Close", atp*close_h, atp*close_h)
+	m.SetConstraint("ATPase_tx_Night", atp*night_h, atp*night_h)
+	nadph = 9.0
+	for phase in phases:
+	    if phase == '_Night':
+	        m.SetConstraint('NADPHoxc_tx' + phase, (atp*night_h/nadph), (atp*night_h/nadph))
+	        m.SetConstraint('NADPHoxp_tx' + phase, (atp*night_h/nadph), (atp*night_h/nadph))
+	        m.SetConstraint('NADPHoxm_tx' + phase, (atp*night_h/nadph), (atp*night_h/nadph))
+	    if phase == '_Open':
+	        m.SetConstraint('NADPHoxc_tx' + phase, (atp*open_h/nadph), (atp*open_h/nadph))
+	        m.SetConstraint('NADPHoxp_tx' + phase, (atp*open_h/nadph), (atp*open_h/nadph))
+	        m.SetConstraint('NADPHoxm_tx' + phase, (atp*open_h/nadph), (atp*open_h/nadph))
+	    if phase == '_Day':
+	        m.SetConstraint('NADPHoxc_tx' + phase, (atp*day_h/nadph), (atp*day_h/nadph))
+	        m.SetConstraint('NADPHoxp_tx' + phase, (atp*day_h/nadph), (atp*day_h/nadph))
+	        m.SetConstraint('NADPHoxm_tx' + phase, (atp*day_h/nadph), (atp*day_h/nadph))
+	    if phase == '_Close':
+	        m.SetConstraint('NADPHoxc_tx' + phase, (atp*close_h/nadph), (atp*close_h/nadph))
+	        m.SetConstraint('NADPHoxp_tx' + phase, (atp*close_h/nadph), (atp*close_h/nadph))
+	        m.SetConstraint('NADPHoxm_tx' + phase, (atp*close_h/nadph), (atp*close_h/nadph))
+	m.MinFluxSolve()
+	sol = m.GetSol(IncZeroes=True)
+	mat = mat.UpdateFromDic(sol)
+vr = scobra.matrix(mat).VaryReacs()
+mat.T.to_csv('GC_ATP_scan_standard.csv',header=False)
+vr.T.to_csv('GC_ATP_scan_standard_vary.csv',header=False)
