@@ -1,6 +1,4 @@
-Appendix S4
 Codes for constructing the construction and simulations of the four-phase guard cell model
-The following is also available at https://github.com/mauriceccy/guardcell/
 
 CoreLeaf.xml - model from Shameer et al. (2018)
 GC_model_construction.py - code for construction of 4-phase guard cell model
