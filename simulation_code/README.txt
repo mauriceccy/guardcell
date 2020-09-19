@@ -1,8 +1,5 @@
-Appendix S4
 Codes for constructing the construction and simulations of the four-phase guard cell model
-The following is also available at https://github.com/mauriceccy/guardcell/
 
-CoreLeaf.xml - model from Shameer et al. (2018)
 GC_model_construction.py - code for construction of 4-phase guard cell model
 GC_match_maintenance.py - code for identifying maintenance costs to match contribution of CO2 fixation to osmolyte accumulation
 GC_standard.py - code for pFBA and FVA for the standard scenario
